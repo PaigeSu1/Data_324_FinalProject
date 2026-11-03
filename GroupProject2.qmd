@@ -1,0 +1,33 @@
+---
+title: "GroupProject"
+author: Trixie Le
+format: html
+editor: source
+---
+
+## Data cleaning:
+```{r}
+library(readxl)
+library(tidyverse)
+loan_data_raw <- read_excel("loan_data.xlsx")
+
+#Filter out unrealistic demographic outliers. 
+loan_data <- loan_data_raw %>%
+  filter(person_age < 100,
+         person_emp_exp < 80,
+         person_emp_exp < person_age,
+         cb_person_cred_hist_length < person_age) %>%
+#Convert loan_status into categorical factor
+#Encode binary text flag ('Yes'/'No') to numeric (1/0)
+  mutate(loan_status = factor(loan_status),
+         previous_loan_defaults_on_file = ifelse(previous_loan_defaults_on_file == "Yes", 1, 0),
+#Bind continuous income into 4 equal quartiles for later graph use
+         income_group = cut(
+           person_income,
+           breaks = quantile(person_income, probs = seq(0, 1, 0.25), na.rm = TRUE),
+           labels = c("Low Income", "Lower-Middle", "Upper-Middle", "High Income"),
+           include.lowest = TRUE)
+         )
+write_csv(loan_data, "loan_cleaned.csv")
+```
+

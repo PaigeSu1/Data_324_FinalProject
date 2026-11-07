@@ -1,0 +1,51 @@
+---
+title: "loan_graphs"
+author: "Jesse Scott"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(manipulate)
+read.csv("loan_cleaned.csv") -> loan
+read.csv("C:\\Users\\iamas\\OneDrive\\Documents\\GitHub\\Data_324_FinalProject\\loan_cleaned.csv") -> loan
+```
+
+```{r}
+loan <- loan %>%
+  mutate(loan_status=if_else(loan_status==1, "Approved", "Rejected"))
+```
+
+```{r}
+manipulate(
+  ggplot(
+    loan %>% filter(person_age==AGE),
+    aes(x=person_income, y=credit_score)
+  ) +
+    geom_point(aes(color=loan_status), alpha=1, size=1) +
+    scale_x_log10() +
+    coord_cartesian(xlim=c(5000, 1000000), ylim=c(390, 784)) +
+#    coord_cartesian(xlim=c(8000, 2448661), ylim=c(390, 784)) +
+    labs(title="Income vs Credit Score", x="Annual Income ($)", y="Credit Score"),
+  
+  AGE=slider(21, 40, initial=25, label="Age")
+)
+```
+
+
+```{r}
+manipulate(
+  ggplot(
+    loan %>% filter(person_age==AGE)
+  ) +
+    geom_boxplot(aes(x=income_group, y=loan_amnt, fill=loan_status)) +
+    coord_cartesian(ylim=c(500, 35000)) +
+    labs(title="Distributions of Requested Loan Amounts by Approval Status Across Income Groups", x="Income Group", y="Loan Amount ($)"),
+  
+  AGE=slider(21, 40, initial=25, label="Age")
+)
+```
+
